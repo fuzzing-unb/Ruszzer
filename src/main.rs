@@ -1,3 +1,10 @@
+mod fuzzer;
+
+use fuzzer::random_fuzzer::RandomFuzzer;
+use fuzzer::fuzzer::Fuzzer;
+
 fn main() {
-    println!("Hello, world!");
+    let fuzzer = RandomFuzzer {};
+    let fuzzied_output = fuzzer.fuzz(100, 32, 126);
+    println!("{}", fuzzied_output);
 }
