@@ -1,7 +1,7 @@
 mod fuzzer;
 
-use fuzzer::random_fuzzer::RandomFuzzer;
 use fuzzer::fuzzer::Fuzzer;
+use fuzzer::random_fuzzer::RandomFuzzer;
 
 fn main() {
     let fuzzer = RandomFuzzer {};
