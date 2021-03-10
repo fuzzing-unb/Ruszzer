@@ -1,4 +1,4 @@
-use crate::runner::runner::{Outcome, Runner};
+use crate::runner::api::{Outcome, Runner};
 
 pub trait Fuzzer {
     fn fuzz(&self) -> String;

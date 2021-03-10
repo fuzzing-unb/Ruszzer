@@ -1,9 +1,8 @@
 use rand::distributions::Uniform;
 use rand::Rng;
 
-use super::fuzzer::Fuzzer;
-use crate::runner::runner::Runner;
-use crate::runner::runner::Outcome;
+use super::api::Fuzzer;
+use crate::runner::api::{Runner, Outcome};
 
 const MAX_STRING_LENGTH: usize = 1000;
 const CHAR_START : u8 = 32;

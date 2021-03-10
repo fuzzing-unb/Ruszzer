@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use super::runner::{Outcome, Runner};
+use super::api::{Outcome, Runner};
 
 pub struct ProgramRunner {
     pub program_name: String,

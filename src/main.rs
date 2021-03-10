@@ -2,7 +2,7 @@ mod fuzzer;
 mod runner;
 
 use fuzzer::random_fuzzer::RandomFuzzer;
-use fuzzer::fuzzer::Fuzzer;
+use fuzzer::api::Fuzzer;
 use runner::program_runner::ProgramRunner;
 
 fn main() {
