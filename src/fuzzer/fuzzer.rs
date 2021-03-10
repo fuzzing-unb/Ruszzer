@@ -1,3 +1,7 @@
+use crate::runner::runner::{Output, Runner};
+
 pub trait Fuzzer {
-    fn fuzz(&self, max_length: usize, char_start: u8, char_range: u8) -> String;
+    fn fuzz(&self) -> String;
+    fn run(&self, runner: &dyn Runner) -> Output;
+    fn runs(&self, runner: &dyn Runner, trials: usize) -> Vec<Output>;
 }
