@@ -3,7 +3,7 @@ use rand::Rng;
 
 use super::fuzzer::Fuzzer;
 use crate::runner::runner::Runner;
-use crate::runner::runner::Output;
+use crate::runner::runner::Outcome;
 
 const MAX_STRING_LENGTH: usize = 1000;
 const CHAR_START : u8 = 32;
@@ -38,12 +38,12 @@ impl Fuzzer for RandomFuzzer {
             .collect();
     }
 
-    fn run(&self, runner: &dyn Runner) -> Output {
+    fn run(&self, runner: &dyn Runner) -> Outcome {
         let fuzzied_string = self.fuzz();
         return runner.run(&fuzzied_string);
     }
 
-    fn runs(&self, runner: &dyn Runner, trials: usize) -> Vec<Output> {
+    fn runs(&self, runner: &dyn Runner, trials: usize) -> Vec<Outcome> {
         let mut vec = Vec::with_capacity(trials);
         for _trial in 0..=trials {
             vec.push(self.run(runner));

@@ -1,13 +1,13 @@
 use std::process::Command;
 
-use super::runner::{Output, Runner};
+use super::runner::{Outcome, Runner};
 
 pub struct ProgramRunner {
     pub program_name: String,
 }
 
 impl Runner for ProgramRunner {
-    fn run(&self, args: &String) -> Output {
+    fn run(&self, args: &String) -> Outcome {
         let output = Command::new(self.program_name.to_string())
             .arg(args)
             .output()
@@ -21,7 +21,7 @@ impl Runner for ProgramRunner {
         let stderr = String::from_utf8(output.stderr)
             .expect("Failed to process the stderr result of the program.");
 
-        return Output {
+        return Outcome {
             status_code: status_code,
             stdout: stdout,
             stderr: stderr,
