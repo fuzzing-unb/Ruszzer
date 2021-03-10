@@ -1,12 +1,12 @@
 use std::process::Command;
 
-use super::api::{Outcome, Runner};
+use super::api::{Outcome, Runner, CodeCoverage};
 
-pub struct ProgramRunner {
+pub struct GCovBinaryRunner {
     pub program_name: String,
 }
 
-impl Runner for ProgramRunner {
+impl Runner for GCovBinaryRunner {
     fn run(&self, args: &String) -> Outcome {
         let output = Command::new(self.program_name.to_string())
             .arg(args)
@@ -25,6 +25,9 @@ impl Runner for ProgramRunner {
             status_code: status_code,
             stdout: stdout,
             stderr: stderr,
+            coverage: CodeCoverage { 
+                covered_lines: std::collections::BTreeSet::new() 
+            }
         };
     }
 }

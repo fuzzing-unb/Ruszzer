@@ -1,2 +1,2 @@
 pub mod api;
-pub mod program_runner;
+pub mod gcov_binary_runner;
