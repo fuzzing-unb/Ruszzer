@@ -1,3 +1,10 @@
+/**
+    CGI Decode Implementation in C.
+
+    This is literally extracted from FuzzingBook Notebook Coverage Chapter.
+    https://www.fuzzingbook.org/html/Coverage.html
+*/
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
