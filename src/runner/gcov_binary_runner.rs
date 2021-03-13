@@ -52,25 +52,23 @@ fn process_gcov_data(gcov_data: &String, source_file_name: &String) -> CodeCover
     let mut covered_lines = std::collections::BTreeSet::new();
     for line in lines {
         let gcov_elements: Vec<&str> = line.split(":").collect();
-        let covered_info = gcov_elements[0].trim();
-        match covered_info.parse::<u64>() {
+        let times_covered_str = gcov_elements[0].trim();
+        match times_covered_str.parse::<u64>() {
             Ok(times_covered) => {
-                if times_covered > 0 {
-                    let line_number = gcov_elements[1].trim();
-                    match line_number.parse::<u64>() {
-                        Ok(line_number) => {
-                            covered_lines.insert((source_file_name.clone(), line_number));
-                        }
-                        Err(_line_number_error) => continue,
-                    }
-                }
-            }
-            Err(_covered_info_error) => continue,
-          }
+                if times_covered <= 0 {
+                    continue
+                }   
+            },
+            Err(_covered_info_error) => continue
+            
+        };
+        let line_number_str = gcov_elements[1].trim();
+        match line_number_str.parse::<u64>() {
+            Ok(line_number) => covered_lines.insert((source_file_name.clone(), line_number)),
+            Err(_line_number_error) => continue
+        };
     }
-
     return CodeCoverage {
         covered_lines
     }
-
 }
