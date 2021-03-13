@@ -44,7 +44,7 @@ impl Fuzzer for RandomFuzzer {
 
     fn runs(&self, runner: &dyn Runner, trials: usize) -> Vec<Outcome> {
         let mut vec = Vec::with_capacity(trials);
-        for _trial in 0..=trials {
+        for _trial in 1..=trials {
             vec.push(self.run(runner));
         }
         return vec;
