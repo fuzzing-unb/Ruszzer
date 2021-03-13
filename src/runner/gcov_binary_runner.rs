@@ -22,7 +22,9 @@ impl Runner for GCovBinaryRunner {
             .expect("Failed to process the stdout result of the program.");
         let stderr = String::from_utf8(output.stderr)
             .expect("Failed to process the stderr result of the program.");
-        let coverage = extract_coverage_information(&self.binary_path, &self.binary_name);
+        let source_file_name = format!("{}.c", self.binary_name);
+        let gcov_data = extract_gcov_data(&self.binary_path, &source_file_name);
+        let coverage = process_gcov_data(&gcov_data, &source_file_name);
 
         return Outcome {
             status_code,
@@ -33,16 +35,42 @@ impl Runner for GCovBinaryRunner {
     }
 }
 
-fn extract_coverage_information(binary_path: &String, binary_name: &String) -> CodeCoverage {
+fn extract_gcov_data(binary_path: &String, source_file_name: &String) -> String {
     let gcov_output = Command::new("gcov")
-        .arg(&binary_name)
+        .arg(&source_file_name)
         .arg("--stdout")
         .current_dir(&binary_path)
         .output()
         .expect("Failed to execute gcov process.");
-    let gcov_contents = String::from_utf8(gcov_output.stdout).expect("Failed to read the output of the gcov command.");
-    println!("{}", gcov_contents);
-    return CodeCoverage {
-        covered_lines: std::collections::BTreeSet::new()
+    let gcov_contents = String::from_utf8(gcov_output.stdout)
+        .expect("Failed to read the output of the gcov command.");
+    return gcov_contents;
+}
+
+fn process_gcov_data(gcov_data: &String, source_file_name: &String) -> CodeCoverage {
+    let lines = gcov_data.lines();
+    let mut covered_lines = std::collections::BTreeSet::new();
+    for line in lines {
+        let gcov_elements: Vec<&str> = line.split(":").collect();
+        let covered_info = gcov_elements[0].trim();
+        match covered_info.parse::<u64>() {
+            Ok(times_covered) => {
+                if times_covered > 0 {
+                    let line_number = gcov_elements[1].trim();
+                    match line_number.parse::<u64>() {
+                        Ok(line_number) => {
+                            covered_lines.insert((source_file_name.clone(), line_number));
+                        }
+                        Err(_line_number_error) => continue,
+                    }
+                }
+            }
+            Err(_covered_info_error) => continue,
+          }
     }
+
+    return CodeCoverage {
+        covered_lines
+    }
+
 }
