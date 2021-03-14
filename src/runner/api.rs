@@ -13,7 +13,7 @@ pub struct CodeCoverage {
 #[derive(Debug)]
 pub struct Outcome {
     pub status_code: i32,
-    pub stdout: String,
-    pub stderr: String,
+    pub stdout: Vec<u8>,
+    pub stderr: Vec<u8>,
     pub coverage: CodeCoverage
 }

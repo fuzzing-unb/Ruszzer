@@ -18,10 +18,8 @@ impl Runner for GCovBinaryRunner {
             .status
             .code()
             .expect("Failed to process the status code of the program.");
-        let stdout = String::from_utf8(output.stdout)
-            .expect("Failed to process the stdout result of the program.");
-        let stderr = String::from_utf8(output.stderr)
-            .expect("Failed to process the stderr result of the program.");
+        let stdout =  output.stdout;
+        let stderr = output.stderr;
         let source_file_name = format!("{}.c", self.binary_name);
         let gcov_data = extract_gcov_data(&self.binary_path, &source_file_name);
         let coverage = process_gcov_data(&gcov_data, &source_file_name);

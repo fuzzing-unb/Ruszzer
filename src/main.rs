@@ -12,7 +12,6 @@ fn main() {
         binary_path: String::from("fuzzy_targets"),
         binary_name: String::from("cgi_decode"),
     };
-    let trials = 1;
-    let output = fuzzer.runs(&echo_program_runner, trials);
-    println!("{:?}", output)
+    let trials = 5000;
+    fuzzer.runs(&echo_program_runner, trials);
 }
