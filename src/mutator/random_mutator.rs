@@ -1,8 +1,12 @@
 use std::iter;
-use super::api::Mutator;
-use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
+use rand::distributions::Alphanumeric;
 
+use super::api::Mutator;
+use crate::runner::api::{Runner, Outcome};
+
+const MIN_MUTATIONS: u32 = 1;
+const MAX_MUTATIONS: u32 = 10;
 
 pub struct RandomMutator {
     pub min_mutations: u32,
@@ -15,6 +19,12 @@ enum GenStrategy {
 }
 
 impl RandomMutator {
+    pub fn default() -> RandomMutator {
+        return RandomMutator {
+            min_mutations: MIN_MUTATIONS,
+            max_mutations: MAX_MUTATIONS,
+        }
+    }
 
     fn swap_char(original_string: &String) -> String {
         let new_character = RandomMutator::generate_random_char(GenStrategy::Random);
@@ -103,6 +113,19 @@ impl Mutator for RandomMutator {
             mutated_target = mutation(&mutated_target);
         }
         return mutated_target;
+    }
+
+    fn run(&self, runner: &dyn Runner, seed: String) -> Outcome {
+        let mutated_string = self.mutate(&seed);
+        return runner.run(&mutated_string);
+    }
+
+    fn runs(&self, runner: &dyn Runner, seed: String, trials: usize) -> Vec<Outcome> {
+        let mut vec = Vec::with_capacity(trials);
+        for _ in 1..=trials {
+            vec.push(self.run(runner, seed.clone()));
+        }
+        return vec;
     }
 }
 

@@ -17,13 +17,20 @@ fn main() {
 
     // RANDOM_FUZZER
     let fuzzer = RandomFuzzer { ..RandomFuzzer::default() };
-    let trials = 100;
-    fuzzer.runs(&cgi_decode_program_runner, trials);
+    let trials = 50;
+    let fuzzer_runs = fuzzer.runs(&cgi_decode_program_runner, trials);
+    
+    println!("Random Fuzzer");
+    for (i, r) in fuzzer_runs.iter().enumerate() {
+        println!("Run #{} coverage {}", i + 1, r.coverage.covered_lines.len());
+    }
 
     // COVERAGE_MUTATION_FUZZER (WIP)
-    let mutator = RandomMutator {
-        min_mutations: 1,
-        max_mutations: 1
-    };
-    println!("{}", mutator.mutate(&String::from("cebola")));
+    let mutator = RandomMutator { ..RandomMutator::default() };
+    let mutator_runs = mutator.runs(&cgi_decode_program_runner, String::from("A quick brown fox"), trials);
+
+    println!("Mutator Fuzzer");
+    for (i, r) in mutator_runs.iter().enumerate() {
+        println!("Run #{} coverage {}", i + 1, r.coverage.covered_lines.len());
+    }
 }
