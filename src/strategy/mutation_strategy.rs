@@ -1,33 +1,27 @@
-use std::iter;
-use rand::{thread_rng, Rng};
-use rand::distributions::Alphanumeric;
+use rand::Rng;
 
-use super::api::Mutator;
-use crate::runner::api::{Runner, Outcome};
+use super::api::Strategy;
 
 const MIN_MUTATIONS: u32 = 1;
 const MAX_MUTATIONS: u32 = 10;
 
-pub struct RandomMutator {
+pub struct MutationStrategy {
     pub min_mutations: u32,
-    pub max_mutations: u32
+    pub max_mutations: u32,
+    pub seed: String,
 }
 
-enum GenStrategy {
-    Printable,
-    Random,
-}
-
-impl RandomMutator {
-    pub fn default() -> RandomMutator {
-        return RandomMutator {
+impl MutationStrategy {
+    pub fn default() -> MutationStrategy {
+        return MutationStrategy {
             min_mutations: MIN_MUTATIONS,
             max_mutations: MAX_MUTATIONS,
+            seed: String::from("")
         }
     }
 
     fn swap_char(original_string: &String) -> String {
-        let new_character = RandomMutator::generate_random_char(GenStrategy::Random);
+        let new_character = MutationStrategy::generate_random_char();
 
         if original_string.len() == 0 {
             return original_string.clone();
@@ -47,7 +41,7 @@ impl RandomMutator {
     }
 
     fn insert_random_character(original_string: &String) -> String {
-        let new_character = RandomMutator::generate_random_char(GenStrategy::Random);
+        let new_character = MutationStrategy::generate_random_char();
         let mut mutated_string = String::with_capacity(original_string.len()+1);
         if original_string.len() == 0 {
             mutated_string.push(new_character);
@@ -79,53 +73,30 @@ impl RandomMutator {
     }
 
     fn choose_random_mutation() -> fn(&String) -> String {
-        let mutation_list = [RandomMutator::swap_char, RandomMutator::delete_random_character, RandomMutator::insert_random_character];
+        let mutation_list = [MutationStrategy::swap_char, MutationStrategy::delete_random_character, MutationStrategy::insert_random_character];
 
         let mutation_index = rand::thread_rng().gen_range(0..mutation_list.len());
         return mutation_list[mutation_index];
     }
 
-    fn generate_random_char(strategy: GenStrategy) -> char {
-        match strategy {
-            // Generate an alphanumeric character randomly.
-            // References:
-            // - https://docs.rs/rand/0.8.3/rand/distributions/struct.Alphanumeric.html
-            // - https://stackoverflow.com/questions/30811107/how-do-i-get-the-first-character-out-of-a-string
-            GenStrategy::Printable => iter::repeat(())
-                .map(|()| thread_rng().sample(Alphanumeric))
-                .map(char::from)
-                .take(1)
-                .collect::<String>()
-                    .chars()
-                    .nth(0)
-                    .unwrap(),
-            GenStrategy::Random => rand::random::<char>(),
-        }
+    fn generate_random_char() -> char {
+        return rand::random::<char>();
     }
-}
-
-impl Mutator for RandomMutator {
+    
     fn mutate(&self, target: &String) -> String {
         let number_of_mutations = rand::thread_rng().gen_range(self.min_mutations..=self.max_mutations);
         let mut mutated_target = target.clone();
         for _ in 1..=number_of_mutations {
-            let mutation = RandomMutator::choose_random_mutation();
+            let mutation = MutationStrategy::choose_random_mutation();
             mutated_target = mutation(&mutated_target);
         }
         return mutated_target;
     }
+}
 
-    fn run(&self, runner: &dyn Runner, seed: String) -> Outcome {
-        let mutated_string = self.mutate(&seed);
-        return runner.run(&mutated_string);
-    }
-
-    fn runs(&self, runner: &dyn Runner, seed: String, trials: usize) -> Vec<Outcome> {
-        let mut vec = Vec::with_capacity(trials);
-        for _ in 1..=trials {
-            vec.push(self.run(runner, seed.clone()));
-        }
-        return vec;
+impl Strategy for MutationStrategy {
+    fn fuzz(&self) -> String {
+        return self.mutate(&self.seed);
     }
 }
 

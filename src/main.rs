@@ -1,14 +1,16 @@
 mod fuzzer;
 mod runner;
-mod mutator;
+mod strategy;
 
 use fuzzer::random_fuzzer::RandomFuzzer;
+use crate::runner::api::Outcome;
 use fuzzer::api::Fuzzer;
 use runner::gcov_binary_runner::GCovBinaryRunner;
-use mutator::random_mutator::RandomMutator;
-use mutator::api::Mutator;
+use strategy::mutation_strategy::MutationStrategy;
+use strategy::random_strategy::RandomStrategy;
 
 fn main() {
+    let strategy_option = "mutation";
 
     let cgi_decode_program_runner = GCovBinaryRunner {
         binary_path: String::from("fuzzy_targets"),
@@ -16,21 +18,23 @@ fn main() {
     };
 
     // RANDOM_FUZZER
-    let fuzzer = RandomFuzzer { ..RandomFuzzer::default() };
     let trials = 50;
-    let fuzzer_runs = fuzzer.runs(&cgi_decode_program_runner, trials);
+    let fuzzer = RandomFuzzer { ..RandomFuzzer::default() };
+
+    let fuzzer_runs: Vec<Outcome>;
+    match strategy_option {
+        "mutation" => {
+            let strategy = MutationStrategy { ..MutationStrategy::default()};
+            fuzzer_runs = fuzzer.runs(&cgi_decode_program_runner, &strategy, trials);
+        },
+        _ => {
+            let strategy = RandomStrategy { ..RandomStrategy::default()};
+            fuzzer_runs = fuzzer.runs(&cgi_decode_program_runner, &strategy, trials);
+        }
+    }
     
     println!("Random Fuzzer");
     for (i, r) in fuzzer_runs.iter().enumerate() {
-        println!("Run #{} coverage {}", i + 1, r.coverage.covered_lines.len());
-    }
-
-    // COVERAGE_MUTATION_FUZZER (WIP)
-    let mutator = RandomMutator { ..RandomMutator::default() };
-    let mutator_runs = mutator.runs(&cgi_decode_program_runner, String::from("A quick brown fox"), trials);
-
-    println!("Mutator Fuzzer");
-    for (i, r) in mutator_runs.iter().enumerate() {
         println!("Run #{} coverage {}", i + 1, r.coverage.covered_lines.len());
     }
 }
