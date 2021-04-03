@@ -1,29 +1,32 @@
 mod fuzzer;
 mod runner;
-mod mutator;
+mod strategy;
 
-use fuzzer::random_fuzzer::RandomFuzzer;
+use fuzzer::fuzzer_impl::FuzzerImpl;
 use fuzzer::api::Fuzzer;
 use runner::gcov_binary_runner::GCovBinaryRunner;
-use mutator::random_mutator::RandomMutator;
-use mutator::api::Mutator;
+use strategy::mutation_strategy::MutationStrategy;
+use strategy::random_strategy::RandomStrategy;
 
 fn main() {
+    // Prepare option when have a CLI.
+    let strategy_option = "random";
 
-    let cgi_decode_program_runner = GCovBinaryRunner {
+    let runner = GCovBinaryRunner {
         binary_path: String::from("fuzzy_targets"),
         binary_name: String::from("cgi_decode"),
     };
 
     // RANDOM_FUZZER
-    let fuzzer = RandomFuzzer { ..RandomFuzzer::default() };
-    let trials = 100;
-    fuzzer.runs(&cgi_decode_program_runner, trials);
+    let trials = 1000;
+    let mut fuzzer = FuzzerImpl { ..FuzzerImpl::default() };
 
-    // COVERAGE_MUTATION_FUZZER (WIP)
-    let mutator = RandomMutator {
-        min_mutations: 1,
-        max_mutations: 1
+    // Run fuzzer according to the chosen strategy
+    match strategy_option {
+        "mutation" => fuzzer.runs(&runner, &MutationStrategy{ ..MutationStrategy::default() }, trials),
+        "random"   => fuzzer.runs(&runner, &RandomStrategy{ ..RandomStrategy::default() }, trials),
+        _          => panic!(),
     };
-    println!("{}", mutator.mutate(&String::from("cebola")));
+    
+    println!("Total coverage: {}", fuzzer.covered_lines.len());
 }

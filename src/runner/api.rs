@@ -3,7 +3,7 @@ pub trait Runner {
 }
 
 // A Covered Line is a Pair of a Function Name (String) and a Line Number
-type CoveredLine = (String, u64);
+pub type CoveredLine = (String, u64);
 
 #[derive(Debug)]
 pub struct CodeCoverage {

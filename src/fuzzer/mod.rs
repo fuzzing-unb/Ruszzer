@@ -1,2 +1,2 @@
 pub mod api;
-pub mod random_fuzzer;
+pub mod fuzzer_impl;
