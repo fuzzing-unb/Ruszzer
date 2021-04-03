@@ -3,16 +3,16 @@ mod runner;
 mod strategy;
 
 use fuzzer::random_fuzzer::RandomFuzzer;
-use crate::runner::api::Outcome;
 use fuzzer::api::Fuzzer;
 use runner::gcov_binary_runner::GCovBinaryRunner;
 use strategy::mutation_strategy::MutationStrategy;
 use strategy::random_strategy::RandomStrategy;
 
 fn main() {
-    let strategy_option = "mutation";
+    // Prepare option when have a CLI.
+    let strategy_option = "random";
 
-    let cgi_decode_program_runner = GCovBinaryRunner {
+    let runner = GCovBinaryRunner {
         binary_path: String::from("fuzzy_targets"),
         binary_name: String::from("cgi_decode"),
     };
@@ -21,17 +21,12 @@ fn main() {
     let trials = 50;
     let fuzzer = RandomFuzzer { ..RandomFuzzer::default() };
 
-    let fuzzer_runs: Vec<Outcome>;
-    match strategy_option {
-        "mutation" => {
-            let strategy = MutationStrategy { ..MutationStrategy::default()};
-            fuzzer_runs = fuzzer.runs(&cgi_decode_program_runner, &strategy, trials);
-        },
-        _ => {
-            let strategy = RandomStrategy { ..RandomStrategy::default()};
-            fuzzer_runs = fuzzer.runs(&cgi_decode_program_runner, &strategy, trials);
-        }
-    }
+    // Run fuzzer according to the chosen strategy
+    let fuzzer_runs = match strategy_option {
+        "mutation" => fuzzer.runs(&runner, &MutationStrategy{ ..MutationStrategy::default() }, trials),
+        "random"   => fuzzer.runs(&runner, &RandomStrategy{ ..RandomStrategy::default() }, trials),
+        _          => panic!(),
+    };
     
     println!("Random Fuzzer");
     for (i, r) in fuzzer_runs.iter().enumerate() {
