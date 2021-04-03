@@ -2,7 +2,7 @@ mod fuzzer;
 mod runner;
 mod strategy;
 
-use fuzzer::random_fuzzer::RandomFuzzer;
+use fuzzer::fuzzer_impl::FuzzerImpl;
 use fuzzer::api::Fuzzer;
 use runner::gcov_binary_runner::GCovBinaryRunner;
 use strategy::mutation_strategy::MutationStrategy;
@@ -18,18 +18,15 @@ fn main() {
     };
 
     // RANDOM_FUZZER
-    let trials = 50;
-    let fuzzer = RandomFuzzer { ..RandomFuzzer::default() };
+    let trials = 1000;
+    let mut fuzzer = FuzzerImpl { ..FuzzerImpl::default() };
 
     // Run fuzzer according to the chosen strategy
-    let fuzzer_runs = match strategy_option {
+    match strategy_option {
         "mutation" => fuzzer.runs(&runner, &MutationStrategy{ ..MutationStrategy::default() }, trials),
         "random"   => fuzzer.runs(&runner, &RandomStrategy{ ..RandomStrategy::default() }, trials),
         _          => panic!(),
     };
     
-    println!("Random Fuzzer");
-    for (i, r) in fuzzer_runs.iter().enumerate() {
-        println!("Run #{} coverage {}", i + 1, r.coverage.covered_lines.len());
-    }
+    println!("Total coverage: {}", fuzzer.covered_lines.len());
 }
