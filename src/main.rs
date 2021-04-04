@@ -1,32 +1,36 @@
-mod fuzzer;
 mod runner;
 mod strategy;
 
-use fuzzer::fuzzer_impl::FuzzerImpl;
-use fuzzer::api::Fuzzer;
 use runner::gcov_binary_runner::GCovBinaryRunner;
+use strategy::api::Strategy;
 use strategy::mutation_strategy::MutationStrategy;
 use strategy::random_strategy::RandomStrategy;
 
 fn main() {
     // Prepare option when have a CLI.
-    let strategy_option = "random";
-
+    let strategy_option = "mutation";
+    let trials = 100;
     let runner = GCovBinaryRunner {
         binary_path: String::from("fuzzy_targets"),
         binary_name: String::from("cgi_decode"),
     };
 
-    // RANDOM_FUZZER
-    let trials = 1000;
-    let mut fuzzer = FuzzerImpl { ..FuzzerImpl::default() };
-
     // Run fuzzer according to the chosen strategy
-    match strategy_option {
-        "mutation" => fuzzer.runs(&runner, &MutationStrategy{ ..MutationStrategy::default() }, trials),
-        "random"   => fuzzer.runs(&runner, &RandomStrategy{ ..RandomStrategy::default() }, trials),
-        _          => panic!(),
+    // TODO: refine this to use a trait object
+    // https://stackoverflow.com/questions/27567849/what-makes-something-a-trait-object
+    let covered_lines = match strategy_option {
+        "mutation" => {
+            let mut strategy = MutationStrategy{ ..MutationStrategy::default()};
+            strategy.runs(&runner, trials);
+            strategy.covered_lines
+        },
+        "random"   => {
+            let mut strategy =  RandomStrategy{ ..RandomStrategy::default() };
+            strategy.runs(&runner, trials);
+            strategy.covered_lines
+        },
+        _ => panic!(),
     };
     
-    println!("Total coverage: {}", fuzzer.covered_lines.len());
+    println!("Total coverage: {}", covered_lines.len());
 }

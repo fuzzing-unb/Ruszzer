@@ -1,5 +1,6 @@
 use rand::distributions::Uniform;
 use rand::Rng;
+use crate::runner::api::{Runner, Outcome, CoveredLine};
 
 use super::api::Strategy;
 
@@ -11,6 +12,7 @@ pub struct RandomStrategy {
     pub max_string_length : usize,
     pub char_start : u8,
     pub char_range : u8,
+    pub covered_lines: std::collections::BTreeSet<CoveredLine>,
 }
 
 impl RandomStrategy {
@@ -18,7 +20,8 @@ impl RandomStrategy {
         return RandomStrategy {
             max_string_length: MAX_STRING_LENGTH,
             char_start: CHAR_START,
-            char_range: CHAR_RANGE, 
+            char_range: CHAR_RANGE,
+            covered_lines: std::collections::BTreeSet::new()
         }
     }
 } 
@@ -33,5 +36,18 @@ impl Strategy for RandomStrategy {
             .take(string_size)
             .map(char::from)
             .collect();
+    }
+
+    fn run<TRunner: Runner>(&mut self, runner: &TRunner) -> Outcome {
+        let fuzzied_string = self.fuzz();
+        let outcome = runner.run(&fuzzied_string);
+        let mut new_coverages: std::collections::BTreeSet<CoveredLine> = outcome.coverage.covered_lines.difference(&self.covered_lines)
+                                                                                                        .cloned()
+                                                                                                        .collect();
+        if !new_coverages.is_empty() {
+            println!("New coverages: {}.", new_coverages.len());
+        }
+        self.covered_lines.append(&mut new_coverages);
+        return outcome;
     }
 }

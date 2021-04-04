@@ -1,4 +1,5 @@
 use rand::Rng;
+use crate::runner::api::{CoveredLine, Runner, Outcome};
 
 use super::api::Strategy;
 
@@ -9,6 +10,7 @@ pub struct MutationStrategy {
     pub min_mutations: u32,
     pub max_mutations: u32,
     pub seed: String,
+    pub covered_lines: std::collections::BTreeSet<CoveredLine>,
 }
 
 impl MutationStrategy {
@@ -16,7 +18,8 @@ impl MutationStrategy {
         return MutationStrategy {
             min_mutations: MIN_MUTATIONS,
             max_mutations: MAX_MUTATIONS,
-            seed: String::from("")
+            seed: String::from(""),
+            covered_lines: std::collections::BTreeSet::new()
         }
     }
 
@@ -95,8 +98,23 @@ impl MutationStrategy {
 }
 
 impl Strategy for MutationStrategy {
+
     fn fuzz(&self) -> String {
         return self.mutate(&self.seed);
     }
+
+    fn run<TRunner: Runner>(&mut self, runner: &TRunner) -> Outcome {
+        let fuzzied_string = self.fuzz();
+        let outcome = runner.run(&fuzzied_string);
+        let mut new_coverages: std::collections::BTreeSet<CoveredLine> = outcome.coverage.covered_lines.difference(&self.covered_lines)
+                                                                                                        .cloned()
+                                                                                                        .collect();
+        if !new_coverages.is_empty() {
+            println!("New coverages: {}.", new_coverages.len());
+        }
+        self.covered_lines.append(&mut new_coverages);
+        return outcome;
+    }
+    
 }
 
