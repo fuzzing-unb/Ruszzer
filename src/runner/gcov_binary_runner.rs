@@ -1,6 +1,11 @@
-use std::process::Command;
+use std::io::Read;
+use std::process::{Command, Stdio};
+use std::time::Duration;
+use wait_timeout::ChildExt;
 
-use super::api::{Outcome, Runner, CodeCoverage};
+use super::api::{Outcome, Runner, CodeCoverage, ProgramOutcome};
+
+const TIMEOUT_TOLERANCE_SECONDS: u64 = 1;
 
 pub struct GCovBinaryRunner {
     pub binary_path: String,
@@ -9,22 +14,36 @@ pub struct GCovBinaryRunner {
 
 impl Runner for GCovBinaryRunner {
     fn run(&self, args: &String) -> Outcome {
-        let output = Command::new(format!("./{}",&self.binary_name))
+        let mut child = Command::new(format!("./{}", &self.binary_name))
+            .stderr(Stdio::piped())
+            .stdout(Stdio::piped())
             .arg(args)
             .current_dir(&self.binary_path)
-            .output()
-            .expect("Failed to execute process.");
-        let status_code = output
-            .status
-            .code()
-            .expect("Failed to process the status code of the program.");
-        let stdout =  output.stdout;
-        let stderr = output.stderr;
+            .spawn()
+            .expect("Failed to spawn process.");
+        let timeout_tolerance = Duration::from_secs(TIMEOUT_TOLERANCE_SECONDS);
+        let (program_outcome, status_code) = match child.wait_timeout(timeout_tolerance).unwrap() {
+            Some(status) => (ProgramOutcome::FINISHED, status.code().unwrap()),
+            None => {
+                child.kill().ok();
+                // We manually set 137 as the Exit Status code for killed processes (128 + 9 for SIGKILL)
+                // As it happens that the program panics to unwrap the code
+                (ProgramOutcome::HANG, child.wait().unwrap().code().unwrap_or(137))
+            }
+        };
+
+        let mut stdout = Vec::new();
+        child.stdout.unwrap().read_to_end(& mut stdout).unwrap();
+
+        let mut stderr = Vec::new();
+        child.stderr.unwrap().read_to_end(&mut stderr).unwrap();
+
         let source_file_name = format!("{}.c", self.binary_name);
         let gcov_data = extract_gcov_data(&self.binary_path, &source_file_name);
         let coverage = process_gcov_data(&gcov_data, &source_file_name);
 
         return Outcome {
+            program_outcome,
             status_code,
             stdout,
             stderr,
