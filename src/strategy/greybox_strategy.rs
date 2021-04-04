@@ -7,6 +7,7 @@ use crate::mutator::api::Mutator;
 
 pub struct GreyboxStrategy<'a> {
     pub mutator: &'a dyn Mutator,
+    pub runner: &'a dyn Runner,
     pub seed: String,
     pub covered_lines: std::collections::BTreeSet<CoveredLine>,
     pub population: Vec<String>,
@@ -14,9 +15,10 @@ pub struct GreyboxStrategy<'a> {
 
 impl <'a> GreyboxStrategy <'a> {
 
-    pub fn default(mutator: &'a dyn Mutator) -> GreyboxStrategy<'a> {
+    pub fn default(mutator: &'a dyn Mutator, runner: &'a dyn Runner) -> GreyboxStrategy<'a> {
         return GreyboxStrategy {
             mutator,
+            runner,
             seed: String::from(""),
             covered_lines: std::collections::BTreeSet::new(),
             population: Vec::new()
@@ -44,9 +46,9 @@ impl <'a> Strategy for GreyboxStrategy<'a> {
         };
     }
 
-    fn run<TRunner: Runner>(&mut self, runner: &TRunner) -> Outcome {
+    fn run(&mut self) -> Outcome {
         let fuzzied_string = self.fuzz();
-        let outcome = runner.run(&fuzzied_string);
+        let outcome = self.runner.run(&fuzzied_string);
         let mut new_coverages: std::collections::BTreeSet<CoveredLine> = outcome.coverage.covered_lines.difference(&self.covered_lines)
                                                                                                         .cloned()
                                                                                                         .collect();

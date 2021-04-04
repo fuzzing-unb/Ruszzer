@@ -20,30 +20,18 @@ fn main() {
     };
     let mutator = RandomMutator::default();
 
-    // Run fuzzer according to the chosen strategy
-    // TODO: refine this to use a trait object
-    // https://stackoverflow.com/questions/27567849/what-makes-something-a-trait-object
-    let covered_lines = match strategy_option {
+    let mut strategy : Box<dyn Strategy> = match strategy_option {
         "mutation" => {
-            let mut strategy = MutationStrategy{ ..MutationStrategy::default(&mutator)};
-            strategy.runs(&runner, trials);
-            strategy.covered_lines
+            Box::new(MutationStrategy{ seed, ..MutationStrategy::default(&mutator, &runner) })
         },
-        "random" => {
-            let mut strategy =  RandomStrategy{ ..RandomStrategy::default() };
-            strategy.runs(&runner, trials);
-            strategy.covered_lines
+        "random" => { 
+            Box::new(RandomStrategy{ ..RandomStrategy::default(&runner) })
         },
-        "greybox" => {
-            let mut strategy = GreyboxStrategy{ seed, ..GreyboxStrategy::default(&mutator) };
-            strategy.runs(&runner, trials);
-            for element in strategy.population {
-                println!("{}", element);
-            }
-            strategy.covered_lines
+        "greybox" => { 
+            Box::new(GreyboxStrategy{ seed, ..GreyboxStrategy::default(&mutator, &runner) })
         }
+
         _ => panic!(),
     };
-    
-    println!("Total coverage: {}", covered_lines.len());
+    strategy.runs(trials);
 }

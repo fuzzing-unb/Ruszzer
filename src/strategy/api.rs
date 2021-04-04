@@ -1,15 +1,15 @@
 
-use crate::runner::api::{Outcome, Runner};
+use crate::runner::api::Outcome;
 
 pub trait Strategy {
     fn fuzz(&self) -> String;
 
-    fn run<TRunner: Runner>(&mut self, runner: &TRunner) -> Outcome;
+    fn run(&mut self) -> Outcome;
 
-    fn runs<TRunner: Runner>(&mut self, runner: &TRunner, trials: usize) -> Vec<Outcome> {
+    fn runs(&mut self, trials: usize) -> Vec<Outcome> {
         let mut vec = Vec::with_capacity(trials);
         for _trial in 1..=trials {
-            vec.push(self.run(runner));
+            vec.push(self.run());
         }
         return vec;
     }
