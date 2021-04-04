@@ -1,17 +1,27 @@
 
 use crate::runner::api::{CoveredLine, Runner, Outcome};
-use crate::strategy::mutation_strategy::MutationStrategy;
 use crate::strategy::api::Strategy;
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
+use crate::mutator::api::Mutator;
 
-pub struct GreyboxStrategy {
-    pub mutator: MutationStrategy,
+pub struct GreyboxStrategy<'a> {
+    pub mutator: &'a dyn Mutator,
+    pub seed: String,
     pub covered_lines: std::collections::BTreeSet<CoveredLine>,
     pub population: Vec<String>,
 }
 
-impl GreyboxStrategy {
+impl <'a> GreyboxStrategy <'a> {
+
+    pub fn default(mutator: &'a dyn Mutator) -> GreyboxStrategy<'a> {
+        return GreyboxStrategy {
+            mutator,
+            seed: String::from(""),
+            covered_lines: std::collections::BTreeSet::new(),
+            population: Vec::new()
+        }
+    }
 
     fn choose_input_from_population(&self) -> String {
         if self.population.is_empty() {
@@ -24,15 +34,14 @@ impl GreyboxStrategy {
         return choice.clone();
     }
 }
-impl Strategy for GreyboxStrategy {
+impl <'a> Strategy for GreyboxStrategy<'a> {
     fn fuzz(&self) -> String {
-        let input = if self.population.is_empty() {
-            self.mutator.seed.clone()
+        return if self.population.is_empty() {
+            self.seed.clone()
         }
         else {
-            self.choose_input_from_population()
+            self.mutator.mutate(&self.choose_input_from_population())
         };
-        return self.mutator.mutate(&input);
     }
 
     fn run<TRunner: Runner>(&mut self, runner: &TRunner) -> Outcome {
