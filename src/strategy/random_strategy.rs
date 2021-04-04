@@ -43,9 +43,10 @@ impl <'a> Strategy for RandomStrategy<'a> {
     fn run(&mut self) -> Outcome {
         let fuzzied_string = self.fuzz();
         let outcome = self.runner.run(&fuzzied_string);
-        let mut new_coverages: std::collections::BTreeSet<CoveredLine> = outcome.coverage.covered_lines.difference(&self.covered_lines)
-                                                                                                        .cloned()
-                                                                                                        .collect();
+        let mut new_coverages: std::collections::BTreeSet<CoveredLine> = outcome.coverage.covered_lines
+            .difference(&self.covered_lines)
+            .cloned()
+            .collect();
         if !new_coverages.is_empty() {
             println!("New coverages: {}.", new_coverages.len());
         }
