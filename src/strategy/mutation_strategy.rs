@@ -86,7 +86,7 @@ impl MutationStrategy {
         return rand::random::<char>();
     }
     
-    fn mutate(&self, target: &String) -> String {
+    pub fn mutate(&self, target: &String) -> String {
         let number_of_mutations = rand::thread_rng().gen_range(self.min_mutations..=self.max_mutations);
         let mut mutated_target = target.clone();
         for _ in 1..=number_of_mutations {

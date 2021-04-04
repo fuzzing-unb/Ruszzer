@@ -5,11 +5,13 @@ use runner::gcov_binary_runner::GCovBinaryRunner;
 use strategy::api::Strategy;
 use strategy::mutation_strategy::MutationStrategy;
 use strategy::random_strategy::RandomStrategy;
+use strategy::greybox_strategy::GreyboxStrategy;
 
 fn main() {
     // Prepare option when have a CLI.
     let strategy_option = "mutation";
-    let trials = 100;
+    let seed = String::from("http://www.google.com/search?q=fuzzing");
+    let trials = 5000;
     let runner = GCovBinaryRunner {
         binary_path: String::from("fuzzy_targets"),
         binary_name: String::from("cgi_decode"),
@@ -24,11 +26,20 @@ fn main() {
             strategy.runs(&runner, trials);
             strategy.covered_lines
         },
-        "random"   => {
+        "random" => {
             let mut strategy =  RandomStrategy{ ..RandomStrategy::default() };
             strategy.runs(&runner, trials);
             strategy.covered_lines
         },
+        "greybox" => {
+            let mutator = MutationStrategy{ seed, ..MutationStrategy::default()};
+            let mut strategy = GreyboxStrategy{ mutator, covered_lines: std::collections::BTreeSet::new(), population: Vec::new() };
+            strategy.runs(&runner, trials);
+            for element in strategy.population {
+                println!("{}", element);
+            }
+            strategy.covered_lines
+        }
         _ => panic!(),
     };
     
