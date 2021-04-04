@@ -1,0 +1,32 @@
+name: ruszzer
+version: "0.1.0"
+author: "BrMtssk <br.mtssk@gmail.com>"
+about: A Fuzzer implementation in Rust
+args:
+  - INPUT:
+      help: Path to binary input file (relative to top level)
+      required: true
+      takes_value: true
+      index: 1
+  - strategy:
+      help: Fuzzing strategy
+      required: true
+      takes_value: true
+      index: 2
+      possible_values: [ random, mutation ]
+  - debug:
+      help: Debug mode
+      short: d
+  - verbose:
+      help: Level of verbosity
+      short: v
+
+subcommands:
+  - test:
+      about: controls testing features (WIP)
+      version: "0.1.0"
+      author: BrMtssk <br.mtssk@gmail.com>
+      args:
+        - debug:
+            short: d
+            about: print debug information

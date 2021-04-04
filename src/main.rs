@@ -2,6 +2,7 @@ mod fuzzer;
 mod runner;
 mod strategy;
 
+use clap::{App, load_yaml};
 use fuzzer::fuzzer_impl::FuzzerImpl;
 use fuzzer::api::Fuzzer;
 use runner::gcov_binary_runner::GCovBinaryRunner;
@@ -9,13 +10,24 @@ use strategy::mutation_strategy::MutationStrategy;
 use strategy::random_strategy::RandomStrategy;
 
 fn main() {
-    // Prepare option when have a CLI.
-    let strategy_option = "random";
+    let yaml = load_yaml!("cli.yaml");
+    let matches = App::from(yaml).get_matches();
+
+    let strategy_option = matches.value_of("strategy").unwrap();
+    let input_path = matches.value_of("INPUT").unwrap();
+
+    let split = input_path.split("/");
+    let path_vector = split.collect::<Vec<&str>>();
+    let binary_path = path_vector[0];
+    let binary_name = path_vector[1];
+
 
     let runner = GCovBinaryRunner {
-        binary_path: String::from("fuzzy_targets"),
-        binary_name: String::from("cgi_decode"),
+        binary_path: String::from(binary_path),
+        binary_name: String::from(binary_name),
     };
+
+    println!("Running {} fuzzer", strategy_option);
 
     // RANDOM_FUZZER
     let trials = 1000;
