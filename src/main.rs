@@ -7,11 +7,12 @@ use strategy::api::Strategy;
 use strategy::mutation_strategy::MutationStrategy;
 use strategy::random_strategy::RandomStrategy;
 use strategy::greybox_strategy::GreyboxStrategy;
+use strategy::boosted_greybox_strategy::BoostedGreyboxStrategy;
 use mutator::random_mutator::RandomMutator;
 
 fn main() {
     // Prepare option when have a CLI.
-    let strategy_option = "greybox";
+    let strategy_option = "boosted_greybox";
     let seed = String::from("http://www.google.com/search?q=fuzzing");
     let trials = 1000;
     let runner = GCovBinaryRunner {
@@ -29,8 +30,10 @@ fn main() {
         },
         "greybox" => { 
             Box::new(GreyboxStrategy{ seed, ..GreyboxStrategy::default(&mutator, &runner) })
+        },
+        "boosted_greybox" => {
+            Box::new(BoostedGreyboxStrategy{ seed, ..BoostedGreyboxStrategy::default(&mutator, &runner) })
         }
-
         _ => panic!(),
     };
     strategy.runs(trials);
