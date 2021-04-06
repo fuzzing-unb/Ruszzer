@@ -29,6 +29,7 @@ impl <'a> RandomStrategy<'a> {
 } 
 
 impl <'a> Strategy for RandomStrategy<'a> {
+
     fn fuzz(&self) -> String {
         let mut rng = rand::thread_rng();
         let string_size = rng.gen_range(0..self.max_string_length + 1);
@@ -53,4 +54,9 @@ impl <'a> Strategy for RandomStrategy<'a> {
         self.covered_lines.append(&mut new_coverages);
         return outcome;
     }
+
+    fn print_results(&self) {
+        println!("Total Coverage: {}", self.covered_lines.len())
+    }
+
 }

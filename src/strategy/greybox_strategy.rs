@@ -37,6 +37,7 @@ impl <'a> GreyboxStrategy <'a> {
     }
 }
 impl <'a> Strategy for GreyboxStrategy<'a> {
+
     fn fuzz(&self) -> String {
         return if self.population.is_empty() {
             self.seed.clone()
@@ -60,4 +61,9 @@ impl <'a> Strategy for GreyboxStrategy<'a> {
         }
         return outcome;
     }
+
+    fn print_results(&self) {
+        println!("Total Coverage: {} - Population: {:?}", self.covered_lines.len(), self.population);
+    }
+
 }

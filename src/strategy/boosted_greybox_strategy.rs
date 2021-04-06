@@ -52,6 +52,7 @@ impl <'a> BoostedGreyboxStrategy <'a> {
 
 
 impl <'a> Strategy for BoostedGreyboxStrategy<'a> {
+
     fn fuzz(&self) -> String {
         return if self.population.is_empty() {
             self.seed.clone()
@@ -83,6 +84,10 @@ impl <'a> Strategy for BoostedGreyboxStrategy<'a> {
             self.covered_lines.append(&mut new_coverages);
         }
         return outcome;
+    }
+
+    fn print_results(&self) {
+        println!("Total Coverage: {} - Population: {:?}", self.covered_lines.len(), self.population);
     }
 
 }

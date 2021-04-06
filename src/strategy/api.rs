@@ -2,6 +2,7 @@
 use crate::runner::api::Outcome;
 
 pub trait Strategy {
+
     fn fuzz(&self) -> String;
 
     fn run(&mut self) -> Outcome;
@@ -13,4 +14,7 @@ pub trait Strategy {
         }
         return vec;
     }
+
+    fn print_results(&self);
+
 }

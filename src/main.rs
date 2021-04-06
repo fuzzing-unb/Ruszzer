@@ -46,5 +46,9 @@ fn main() {
         }
         _ => panic!(),
     };
-    strategy.runs(trials);
+    let outcomes = strategy.runs(trials);
+    for outcome in outcomes {
+        println!("{:?}", outcome);
+    }
+    strategy.print_results();
 }

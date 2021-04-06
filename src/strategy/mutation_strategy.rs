@@ -40,6 +40,10 @@ impl <'a> Strategy for MutationStrategy<'a>  {
         self.covered_lines.append(&mut new_coverages);
         return outcome;
     }
-    
+
+    fn print_results(&self) {
+        println!("Total Coverage: {}", self.covered_lines.len())
+    }
+
 }
 
