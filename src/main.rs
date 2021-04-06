@@ -2,6 +2,7 @@ mod runner;
 mod strategy;
 mod mutator;
 
+use clap::{App, load_yaml};
 use runner::gcov_binary_runner::GCovBinaryRunner;
 use strategy::api::Strategy;
 use strategy::mutation_strategy::MutationStrategy;
@@ -11,13 +12,22 @@ use strategy::boosted_greybox_strategy::BoostedGreyboxStrategy;
 use mutator::random_mutator::RandomMutator;
 
 fn main() {
-    // Prepare option when have a CLI.
-    let strategy_option = "boosted_greybox";
-    let seed = String::from("http://www.google.com/search?q=fuzzing");
-    let trials = 1000;
+
+    let yaml = load_yaml!("cli.yaml");
+    let matches = App::from(yaml).get_matches();
+
+    let strategy_option = matches.value_of("fuzzer").unwrap();
+    let seed = String::from(matches.value_of("seed").unwrap());
+    let trials = matches.value_of("trials").unwrap().parse().unwrap();
+    let input_path = matches.value_of("input").unwrap();
+    let split = input_path.split("/");
+    let path_vector = split.collect::<Vec<&str>>();
+    let binary_path = path_vector[0];
+    let binary_name = path_vector[1];
+
     let runner = GCovBinaryRunner {
-        binary_path: String::from("fuzzy_targets"),
-        binary_name: String::from("cgi_decode"),
+        binary_path: String::from(binary_path),
+        binary_name: String::from(binary_name),
     };
     let mutator = RandomMutator::default();
 

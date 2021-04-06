@@ -1,0 +1,34 @@
+name: ruszzer
+version: "0.1.0"
+author: "BrMtssk <br.mtssk@gmail.com>"
+about: A Fuzzer implementation in Rust
+args:
+    - input:
+        help: Path to binary input file (relative to top level)
+        required: true
+        takes_value: true
+        short: i
+        long: input
+    - fuzzer:
+        help: Fuzzing strategy
+        required: true
+        takes_value: true
+        default_value: random
+        short: f
+        long: fuzzer
+        possible_values: [ random, mutation, greybox, boosted_greybox ]
+    - trials:
+        help: Number of trials
+        required: false
+        takes_value: true
+        default_value: "100"
+        short: t
+        long: trials
+    - seed:
+        help: Initial seed for fuzzing (only for mutation and greybox-based strategies)
+        required: false
+        takes_value: true
+        short: s
+        long: seed
+        default_value: abcxyz
+

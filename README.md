@@ -6,21 +6,21 @@ A Fuzzer implementation in Rust following the guidelines exposed in https://www.
 1. Install `rustc` and `cargo` (it can be done using the [rustup](https://www.rust-lang.org/tools/install) script);
 2. Compile your fuzzy target using `gcc` and the `--coverage` flag:
 ```sh
-cd fuzzy_targets
-gcc --coverage -o cgi_decode cgi_decode.c
-cd ..
-```
-3. Manualy point to your target in the `src/main.rs` file (A WIP is in progress for a CLI):
-```rust
-let cgi_decode_program_runner = GCovBinaryRunner {
-    binary_path: String::from("fuzzy_targets"),
-    binary_name: String::from("cgi_decode"),
-};
+$ cd fuzzy_targets
+$ gcc --coverage -o cgi_decode cgi_decode.c
+$ cd ..
 ```
 
-4. Build and run :)
+3. Build...
 ```
-cargo update
-cargo build
-cargo run
+$ cargo update
+$ cargo build
+```
+
+4. .. and fuzz :)
+```sh
+# Check for required and available parameters
+$ cargo run -- --help
+# Example: Fuzz the "cgi_decode" target choosing a "boosted_greybox" strategy running 200 trials and using "http://google.com/search?q=foo" as the initial seed
+$ cargo run -- -i fuzzy_targets/cgi_decode -f boosted_greybox -t 200 -s "http://google.com/search?q=foo"
 ```
