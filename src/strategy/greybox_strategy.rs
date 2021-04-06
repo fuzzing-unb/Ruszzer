@@ -47,7 +47,7 @@ impl <'a> Strategy for GreyboxStrategy<'a> {
         };
     }
 
-    fn run(&mut self) -> Outcome {
+    fn run(&mut self) -> (String, Outcome) {
         let fuzzied_string = self.fuzz();
         let outcome = self.runner.run(&fuzzied_string);
         let mut new_coverages: std::collections::BTreeSet<CoveredLine> = outcome.coverage.covered_lines
@@ -56,10 +56,10 @@ impl <'a> Strategy for GreyboxStrategy<'a> {
             .collect();
         if !new_coverages.is_empty() {
             println!("New coverages: {}.", new_coverages.len());
-            self.population.push(fuzzied_string);
+            self.population.push(fuzzied_string.clone());
             self.covered_lines.append(&mut new_coverages);
         }
-        return outcome;
+        return (fuzzied_string, outcome);
     }
 
     fn print_results(&self) {

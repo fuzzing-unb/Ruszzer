@@ -48,7 +48,7 @@ fn main() {
     };
     let outcomes = strategy.runs(trials);
     for outcome in outcomes {
-        println!("{:?}", outcome);
+        println!("{} {:?} {}", outcome.0, outcome.1.program_outcome, outcome.1.status_code);
     }
     strategy.print_results();
 }

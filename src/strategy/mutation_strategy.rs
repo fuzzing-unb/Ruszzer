@@ -27,7 +27,7 @@ impl <'a> Strategy for MutationStrategy<'a>  {
         return self.mutator.mutate(&self.seed);
     }
 
-    fn run(&mut self) -> Outcome {
+    fn run(&mut self) -> (String, Outcome) {
         let fuzzied_string = self.fuzz();
         let outcome = self.runner.run(&fuzzied_string);
         let mut new_coverages: std::collections::BTreeSet<CoveredLine> = outcome.coverage.covered_lines
@@ -38,7 +38,7 @@ impl <'a> Strategy for MutationStrategy<'a>  {
             println!("New coverages: {}.", new_coverages.len());
         }
         self.covered_lines.append(&mut new_coverages);
-        return outcome;
+        return (fuzzied_string, outcome);
     }
 
     fn print_results(&self) {

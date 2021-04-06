@@ -62,7 +62,7 @@ impl <'a> Strategy for BoostedGreyboxStrategy<'a> {
         };
     }
 
-    fn run(&mut self) -> Outcome {
+    fn run(&mut self) -> (String, Outcome) {
         let fuzzied_string = self.fuzz();
         let outcome = self.runner.run(&fuzzied_string);
 
@@ -80,10 +80,10 @@ impl <'a> Strategy for BoostedGreyboxStrategy<'a> {
             .collect();
         if !new_coverages.is_empty() {
             println!("New coverages: {}.", new_coverages.len());
-            self.population.push((fuzzied_string, path_identifier));
+            self.population.push((fuzzied_string.clone(), path_identifier));
             self.covered_lines.append(&mut new_coverages);
         }
-        return outcome;
+        return (fuzzied_string, outcome);
     }
 
     fn print_results(&self) {
