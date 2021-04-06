@@ -23,11 +23,13 @@ impl Runner for GCovBinaryRunner {
             .expect("Failed to spawn process.");
         let timeout_tolerance = Duration::from_secs(TIMEOUT_TOLERANCE_SECONDS);
         let (program_outcome, status_code) = match child.wait_timeout(timeout_tolerance).unwrap() {
-            Some(status) => (ProgramOutcome::FINISHED, status.code().unwrap()),
+            // We manually set 139 as the Exit Status code for killed processes (128 + 11 for SIGSEGV)
+            // As we consider that the program was terminated by an operating system signal
+            Some(status) => (ProgramOutcome::FINISHED, status.code().unwrap_or(139)),
             None => {
                 child.kill().ok();
                 // We manually set 137 as the Exit Status code for killed processes (128 + 9 for SIGKILL)
-                // As it happens that the program panics to unwrap the code
+                // As it happens that the exit code is None if the program is terminated by a signal
                 (ProgramOutcome::HANG, child.wait().unwrap().code().unwrap_or(137))
             }
         };
