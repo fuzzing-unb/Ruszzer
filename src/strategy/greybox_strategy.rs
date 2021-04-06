@@ -8,7 +8,7 @@ use crate::mutator::api::Mutator;
 pub struct GreyboxStrategy<'a> {
     pub mutator: &'a dyn Mutator,
     pub runner: &'a dyn Runner,
-    pub seed: String,
+    pub seeds: Vec<String>,
     pub covered_lines: std::collections::BTreeSet<CoveredLine>,
     pub population: Vec<String>,
 }
@@ -19,7 +19,7 @@ impl <'a> GreyboxStrategy <'a> {
         return GreyboxStrategy {
             mutator,
             runner,
-            seed: String::from(""),
+            seeds: vec![String::from("abcxyz")],
             covered_lines: std::collections::BTreeSet::new(),
             population: Vec::new()
         }
@@ -38,13 +38,13 @@ impl <'a> GreyboxStrategy <'a> {
 }
 impl <'a> Strategy for GreyboxStrategy<'a> {
 
-    fn fuzz(&self) -> String {
-        return if self.population.is_empty() {
-            self.seed.clone()
-        }
-        else {
+    fn fuzz(&mut self) -> String {
+        return if self.seeds.is_empty() {
             self.mutator.mutate(&self.choose_input_from_population())
-        };
+       }
+       else {
+           self.seeds.pop().unwrap()
+       }
     }
 
     fn run(&mut self) -> (String, Outcome) {

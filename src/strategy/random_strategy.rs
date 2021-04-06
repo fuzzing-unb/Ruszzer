@@ -30,7 +30,7 @@ impl <'a> RandomStrategy<'a> {
 
 impl <'a> Strategy for RandomStrategy<'a> {
 
-    fn fuzz(&self) -> String {
+    fn fuzz(&mut self) -> String {
         let mut rng = rand::thread_rng();
         let string_size = rng.gen_range(0..self.max_string_length + 1);
         let character_distribution = Uniform::from(self.char_start..=self.char_start + self.char_range);

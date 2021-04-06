@@ -11,7 +11,7 @@ type PathIdentifier = u64;
 pub struct BoostedGreyboxStrategy<'a> {
     pub mutator: &'a dyn Mutator,
     pub runner: &'a dyn Runner,
-    pub seed: String,
+    pub seeds: Vec<String>,
     pub covered_lines: std::collections::BTreeSet<CoveredLine>,
     pub population: Vec<(String, PathIdentifier)>,
     pub path_frequency_map: std::collections::BTreeMap<PathIdentifier, u64>,
@@ -24,7 +24,7 @@ impl <'a> BoostedGreyboxStrategy <'a> {
         return BoostedGreyboxStrategy {
             mutator,
             runner,
-            seed: String::from(""),
+            seeds: vec![String::from("abcxyz")],
             covered_lines: std::collections::BTreeSet::new(),
             population: Vec::new(),
             path_frequency_map: std::collections::BTreeMap::new(),
@@ -53,13 +53,13 @@ impl <'a> BoostedGreyboxStrategy <'a> {
 
 impl <'a> Strategy for BoostedGreyboxStrategy<'a> {
 
-    fn fuzz(&self) -> String {
-        return if self.population.is_empty() {
-            self.seed.clone()
-        }
-        else {
+    fn fuzz(&mut self) -> String {
+        return if self.seeds.is_empty() {
             self.mutator.mutate(&self.choose_input_from_population())
-        };
+       }
+       else {
+           self.seeds.pop().unwrap()
+       }
     }
 
     fn run(&mut self) -> (String, Outcome) {

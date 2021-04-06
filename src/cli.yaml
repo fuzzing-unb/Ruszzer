@@ -24,11 +24,12 @@ args:
         default_value: "100"
         short: t
         long: trials
-    - seed:
-        help: Initial seed for fuzzing (only for mutation and greybox-based strategies)
+    - seeds:
+        help: Initial seeds for fuzzing (only for mutation and greybox-based strategies)
         required: false
         takes_value: true
+        multiple: true
         short: s
         long: seed
-        default_value: abcxyz
+        default_value: "abcxyz"
 

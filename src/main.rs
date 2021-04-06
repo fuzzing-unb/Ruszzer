@@ -17,7 +17,7 @@ fn main() {
     let matches = App::from(yaml).get_matches();
 
     let strategy_option = matches.value_of("fuzzer").unwrap();
-    let seed = String::from(matches.value_of("seed").unwrap());
+    let seeds : Vec<String> = matches.values_of("seeds").unwrap().map(String::from).collect();
     let trials = matches.value_of("trials").unwrap().parse().unwrap();
     let input_path = matches.value_of("input").unwrap();
     let split = input_path.split("/");
@@ -33,16 +33,16 @@ fn main() {
 
     let mut strategy : Box<dyn Strategy> = match strategy_option {
         "mutation" => {
-            Box::new(MutationStrategy{ seed, ..MutationStrategy::default(&mutator, &runner) })
+            Box::new(MutationStrategy{ seeds, ..MutationStrategy::default(&mutator, &runner) })
         },
         "random" => { 
             Box::new(RandomStrategy{ ..RandomStrategy::default(&runner) })
         },
         "greybox" => { 
-            Box::new(GreyboxStrategy{ seed, ..GreyboxStrategy::default(&mutator, &runner) })
+            Box::new(GreyboxStrategy{ seeds, ..GreyboxStrategy::default(&mutator, &runner) })
         },
         "boosted_greybox" => {
-            Box::new(BoostedGreyboxStrategy{ seed, ..BoostedGreyboxStrategy::default(&mutator, &runner) })
+            Box::new(BoostedGreyboxStrategy{ seeds, ..BoostedGreyboxStrategy::default(&mutator, &runner) })
         }
         _ => panic!(),
     };

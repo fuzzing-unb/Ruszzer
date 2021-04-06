@@ -3,7 +3,7 @@ use crate::runner::api::Outcome;
 
 pub trait Strategy {
 
-    fn fuzz(&self) -> String;
+    fn fuzz(&mut self) -> String;
 
     fn run(&mut self) -> (String, Outcome);
 
