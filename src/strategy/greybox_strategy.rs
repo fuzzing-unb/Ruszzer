@@ -55,7 +55,7 @@ impl <'a> Strategy for GreyboxStrategy<'a> {
             .cloned()
             .collect();
         if !new_coverages.is_empty() {
-            println!("New coverages: {}.", new_coverages.len());
+            println!("New coverages: {}. String: {}", new_coverages.len(), fuzzied_string);
             self.population.push(fuzzied_string.clone());
             self.covered_lines.append(&mut new_coverages);
         }

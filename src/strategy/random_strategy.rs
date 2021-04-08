@@ -49,7 +49,7 @@ impl <'a> Strategy for RandomStrategy<'a> {
             .cloned()
             .collect();
         if !new_coverages.is_empty() {
-            println!("New coverages: {}.", new_coverages.len());
+            println!("New coverages: {}. String: {}", new_coverages.len(), fuzzied_string);
         }
         self.covered_lines.append(&mut new_coverages);
         return (fuzzied_string, outcome);
