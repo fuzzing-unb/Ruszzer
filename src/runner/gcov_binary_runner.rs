@@ -1,6 +1,7 @@
 use std::io::Read;
 use std::process::{Command, Stdio};
 use std::time::Duration;
+use std::os::unix::process::ExitStatusExt;
 use wait_timeout::ChildExt;
 
 use super::api::{Outcome, Runner, CodeCoverage, ProgramOutcome};
@@ -23,14 +24,15 @@ impl Runner for GCovBinaryRunner {
             .expect("Failed to spawn process.");
         let timeout_tolerance = Duration::from_secs(TIMEOUT_TOLERANCE_SECONDS);
         let (program_outcome, status_code) = match child.wait_timeout(timeout_tolerance).unwrap() {
-            // We manually set 139 as the Exit Status code for killed processes (128 + 11 for SIGSEGV)
-            // As we consider that the program was terminated by an operating system signal
-            Some(status) => (ProgramOutcome::FINISHED, status.code().unwrap_or(139)),
+            Some(status) => {
+                match status.signal() {
+                    Some(signal) => (ProgramOutcome::SIGNALED, signal),
+                    None => (ProgramOutcome::FINISHED, status.code().unwrap())
+                }
+            }
             None => {
                 child.kill().ok();
-                // We manually set 137 as the Exit Status code for killed processes (128 + 9 for SIGKILL)
-                // As it happens that the exit code is None if the program is terminated by a signal
-                (ProgramOutcome::HANG, child.wait().unwrap().code().unwrap_or(137))
+                (ProgramOutcome::HANG, child.wait().unwrap().signal().unwrap())
             }
         };
 

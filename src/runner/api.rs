@@ -23,4 +23,5 @@ pub struct Outcome {
 pub enum ProgramOutcome {
     FINISHED,
     HANG,
+    SIGNALED
 }
