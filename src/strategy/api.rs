@@ -1,5 +1,5 @@
 
-use crate::runner::api::Outcome;
+use crate::runner::api::{Outcome, ProgramOutcome};
 
 pub trait Strategy {
 
@@ -10,7 +10,11 @@ pub trait Strategy {
     fn runs(&mut self, trials: usize) -> Vec<(String, Outcome)> {
         let mut vec = Vec::with_capacity(trials);
         for _trial in 1..=trials {
-            vec.push(self.run());
+            let outcome = self.run();
+            if matches!(outcome.1.program_outcome, ProgramOutcome::HANG) || matches!(outcome.1.program_outcome, ProgramOutcome::SIGNALED) {
+                println!("Outcome {:?} with code {} for String '{}'", outcome.1.program_outcome, outcome.1.status_code, outcome.0);
+            }
+            vec.push(outcome);
         }
         return vec;
     }

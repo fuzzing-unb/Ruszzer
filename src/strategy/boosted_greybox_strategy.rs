@@ -79,7 +79,7 @@ impl <'a> Strategy for BoostedGreyboxStrategy<'a> {
             .cloned()
             .collect();
         if !new_coverages.is_empty() {
-            println!("New coverages: {}. String: {}", new_coverages.len(), fuzzied_string);
+            println!("New coverages: {}. String: '{}'", new_coverages.len(), fuzzied_string);
             self.population.push((fuzzied_string.clone(), path_identifier));
             self.covered_lines.append(&mut new_coverages);
         }

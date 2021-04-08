@@ -53,9 +53,9 @@ fn main() {
         let count = count + 1;
         results_map.insert(outcome.1.status_code, count);
     }
-
+    println!("### RESULTS ###");
     for result in results_map {
-        println!("Status Code {} - {}", result.0, result.1);
+        println!("Status Code {} - Count {}", result.0, result.1);
     }
     strategy.print_results();
 }
