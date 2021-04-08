@@ -28,7 +28,7 @@ impl <'a> BoostedGreyboxStrategy <'a> {
             covered_lines: std::collections::BTreeSet::new(),
             population: Vec::new(),
             path_frequency_map: std::collections::BTreeMap::new(),
-            exponential_power_schedule: 1
+            exponential_power_schedule: 5
         }
     }
 

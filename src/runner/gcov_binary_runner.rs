@@ -44,6 +44,13 @@ impl Runner for GCovBinaryRunner {
         let gcov_data = extract_gcov_data(&self.binary_path, &source_file_name);
         let coverage = process_gcov_data(&gcov_data, &source_file_name);
 
+        Command::new("rm")
+            .arg("-f")
+            .arg(format!("{}.gcda", &self.binary_name))
+            .current_dir(&self.binary_path)
+            .spawn()
+            .expect("Failed to spawn process.");
+
         return Outcome {
             program_outcome,
             status_code,
