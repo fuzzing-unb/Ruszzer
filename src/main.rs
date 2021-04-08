@@ -47,8 +47,15 @@ fn main() {
         _ => panic!(),
     };
     let outcomes = strategy.runs(trials);
+    let mut results_map = std::collections::BTreeMap::new();
     for outcome in outcomes {
-        println!("{} {:?} {}", outcome.0, outcome.1.program_outcome, outcome.1.status_code);
+        let count = results_map.get(&outcome.1.status_code).unwrap_or(&0);
+        let count = count + 1;
+        results_map.insert(outcome.1.status_code, count);
+    }
+
+    for result in results_map {
+        println!("Status Code {} - {}", result.0, result.1);
     }
     strategy.print_results();
 }
