@@ -22,5 +22,5 @@ $ cargo build
 # Check for required and available parameters
 $ cargo run -- --help
 # Example: Fuzz the "cgi_decode" target choosing a "boosted_greybox" strategy running 200 trials and using "http://google.com/search?q=foo" as the initial seed
-$ cargo run -- -i fuzzy_targets/cgi_decode -f boosted_greybox -t 200 -s "http://google.com/search?q=foo"
+$ cargo run -- -i cgi_decode/cgi_decode -f boosted_greybox -t 200 -s "http://google.com/search?q=foo"
 ```
